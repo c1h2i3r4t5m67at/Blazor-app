@@ -1,0 +1,112 @@
+﻿@page "/viewresume"
+@page "/viewresume/{id:int}"
+<PageTitle>View resume</PageTitle>
+@using Exl.ResumeBuilder.Web.Services
+@using Exl.ResumeBuilder.Web.Data
+@inject ResumeService ResumeService
+@inject IResumeService ResumeService
+
+@if (Id == null)
+{
+	<div>id is null</div>
+}
+else
+{
+	<div class="container">
+		<div class="row p-0">
+			<div class="col-sm p-2">
+				<div class="card">
+					<div class="card-body">
+						<div class="row p-0 m-0">
+							<div class="col-4 p-0">
+								<div src="" alt="profile image" style="background-image: url('https://garik.exelus.nl/img/profileImage.8d0d0cbd.png');
+background-position: center center; width:200px; height: 200px; background-size: cover;"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row p-0">
+			<div class="col-lg-4 p-2">
+				<div class="row p-0 m-0">
+					<div class="col-12 p-0">
+						<div class="card">
+							<div class="card-body">
+								<h5 class="card-title">Primary Skills</h5>
+								<div class="progressLabel">Leadership</div>
+								<div class="progress">
+									<div class="progress-bar" role="progressbar" style="width: 95%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+								</div>
+								<div class="progressLabel">Leadership</div>
+								<div class="progress">
+									<div class="progress-bar" role="progressbar" style="width: 95%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 p-0 mt-3">
+						<div class="card">
+							<div class="card-body">
+								<h5 class="card-title">Education</h5>
+								<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+								<div class="progress">
+									<div class="progress-bar" role="progressbar" style="width: 95%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="col-12 p-0 mt-3">
+						<div class="card">
+							<div class="card-body">
+								<h5 class="card-title">Education</h5>
+								<p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+								<div class="progress">
+									<div class="progress-bar" role="progressbar" style="width: 95%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">25%</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-8 p-2">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Name: </h5>
+						@resume.FullName
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Position: </h5>
+						@resume.JobTitle
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title">Location: </h5>
+						@resume.Location
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+}
+@code {
+	[Parameter]
+	public int? Id { get; set; }
+
+	Resume resume = new Resume();
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (Id != null)
+		{
+			resume = await ResumeService.GetResume((int)Id);
+		}
+
+	}
+}
+

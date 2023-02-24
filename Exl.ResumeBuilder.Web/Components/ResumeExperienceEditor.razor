@@ -1,0 +1,186 @@
+﻿@using Exl.ResumeBuilder.Web.Data
+@using Exl.ResumeBuilder.Web.Models.Resume
+@using Exl.ResumeBuilder.Web.Services
+@using Microsoft.Extensions.Logging
+@inject ResumeService ResumeService
+
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Experience</h5>
+        <p class="card-content">Share your experience...</p>
+        <div class="list-group">
+            @foreach (var experience in Experiences)
+            {
+                <div class="list-group-item @(experience.IsInEditMode ? "" : "list-group-item-action") flex-column align-items-start " @key="Guid.NewGuid()">
+                    @if (experience.IsInEditMode)
+                    {
+                        <EditForm id="@Guid.NewGuid()" EditContext="@editContext" OnValidSubmit="@HandleValidSubmit">
+                            <ObjectGraphDataAnnotationsValidator  />
+
+                            <div class="form-row">
+                                <div class="col-sm-12">
+                                    <div class="form-row">
+                                        <div class="col-sm-12 mb-3">
+                                            <div class="input-group">
+                                                <InputText type="text" placeholder="Organisation Name" class="form-control"  @bind-Value="experience.OrganisationName" />
+                                                <ValidationMessage For="@(() => experience.OrganisationName)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-sm-12 mb-3">
+                                            <div class="input-group">
+                                                <InputText type="text" placeholder="Role or title" class="form-control"  @bind-Value="experience.Role" />
+                                                <ValidationMessage For="@(() => experience.Role)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-sm-4 mb-3">
+                                            <div class="input-group">
+                                                <InputDate placeholder="Start Date" class="form-control"  @bind-Value="experience.StartDate" />
+                                                <ValidationMessage For="@(() => experience.StartDate)" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <div class="input-group">
+                                                <InputDate disabled="@experience.IsStillWorkingHere" placeholder="End Date" class="form-control"  @bind-Value="experience.EndDate" />
+                                                <ValidationMessage For="@(() => experience.EndDate)" />
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-4 mb-3">
+                                            <div class="form-check mt-md-2">
+                                                <input type="checkbox" class="form-check-input" id="IsStillWorkingHereCB" @bind="experience.IsStillWorkingHere" />
+                                                <label class="form-check-label" for="IsStillWorkingHereCB">
+                                                    Still Working Here
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-sm-12 mb-3">
+                                            <div class="input-group">
+                                                <InputTextArea placeholder="About your role and organisation" class="form-control" @bind-Value="experience.Description" />
+                                                <ValidationMessage For="@(() => experience.Description)" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-sm-12 mb-3">
+                                            <h5>Responsabilities</h5>
+                                            <p>What were your responsabilities with this role? Define each responsability in one or two sentances.</p>
+
+                                            @foreach (var responsability in experience.Responsibilities)
+                                            {
+                                                <div @key="responsability.Id" class="mb-1">
+                                                    <div class="input-group">
+                                                        <InputText type="text" placeholder="Responsability e.g Managed the development team" class="form-control" @bind-Value="responsability.Value" />
+                                                        <div class="input-group-append">
+                                                            <button @onclick="() => onRemoveResponsability(experience,responsability)" class="btn btn-outline-secondary" type="button">Remove</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+
+                                            <div class="form-row">
+                                                <div class="col-sm-12 justify-content-end align-content-end">
+                                                    <button class="btn btn-secondary" @onclick="() => onAddNewResponsability(experience)" type="button">Add Responsability</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="col-sm-12 mb-3">
+                                            <h5>Skills</h5>
+                                            <p>What were your responsabilities with this role? Define each responsability in one or two sentances.</p>
+
+                                            <h3>
+                                                @foreach (var skill in experience.Skills)
+                                                {
+                                                    <h1 class="badge badge-primary mr-1 p-2" @key="skill.Id">
+                                                        @skill.Value
+                                                    </h1>
+                                                }
+                                                <div class="input-group addSkillControl">
+                                                    <InputText type="text" style="width:100px;" placeholder="Skill" class="form-control" @bind-Value="newSkill" />
+                                                    <div class="input-group-append">
+                                                        <button @onclick="() => onAddSkill(experience,newSkill)" class="btn btn-secondary" type="button">Add Skill</button>
+                                                    </div>
+                                                </div>
+                                            </h3>
+
+
+                                            <div class="form-row">
+                                                
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-sm-12 col-md-6 mt-3">
+                                    <button class="btn btn-primary" disabled="@(!hasChanges)" type="submit">Save Changes</button>
+                                </div>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        @experience.OrganisationName
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter]
+    public List<ExperienceDto> Experiences { get; set; }
+
+    private EditContext? editContext;
+    private bool hasChanges = false;
+    private string newSkill = "";
+
+    protected override void OnInitialized()
+    {
+        editContext = new(Experiences.First());
+
+        editContext.OnFieldChanged += EditContext_OnFieldChanged;
+    }
+
+    private async void HandleValidSubmit()
+    {
+        await OnValidSubmit.InvokeAsync();
+    }
+
+    private void onAddSkill(ExperienceDto experience, string skill)
+    {
+        experience.Skills.Add(new ListItemDto<string>()
+            {
+                Value = skill
+            });
+        newSkill = "";
+    }
+
+    private void onAddNewResponsability(ExperienceDto experience)
+    {
+        experience.Responsibilities.Add(new ListItemDto<string>());
+    }
+
+    private void onRemoveResponsability(ExperienceDto experience, ListItemDto<string> responsability)
+    {
+        experience.Responsibilities.Remove(responsability);
+    }
+
+    private void EditContext_OnFieldChanged(object sender, FieldChangedEventArgs e)
+    {
+        hasChanges = true;
+    }
+}

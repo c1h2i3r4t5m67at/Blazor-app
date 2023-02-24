@@ -1,0 +1,42 @@
+﻿@page "/"
+@using Exl.ResumeBuilder.Web.Services
+@inject IResumeService ResumeService
+<PageTitle>Index</PageTitle>
+<NavLink class="nav-link" href="newResume">
+	<span class="oi oi-plus" aria-hidden="true"></span> Create New Resume
+
+
+</NavLink>
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th scope="col">Name</th>
+			<th scope="col">Position</th>
+			<th scope="col">Email</th>
+
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var resume in ResumeService.Resumes)
+		{
+			<tr>
+				<td scope="row">
+					@resume.FullName
+				</td>
+				<td scope="row">
+					@resume.JobTitle
+				</td>
+				<td scope="row">
+					@resume.Email
+				</td>
+			</tr>
+
+		}
+	</tbody>
+</table>
+@code {
+	protected override async Task OnInitializedAsync()
+	{
+		await ResumeService.LoadResumes();
+	}
+}

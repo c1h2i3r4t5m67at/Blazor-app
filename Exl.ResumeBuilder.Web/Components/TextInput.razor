@@ -1,0 +1,11 @@
+﻿@inherits InputText
+
+<input class="form-control " type="text" value="@this.CurrentValue" @oninput="OnInput" @ref="Element" />
+
+@code{
+
+    public ElementReference? Element { get; set; }
+
+    private void OnInput(ChangeEventArgs e)
+    => this.CurrentValueAsString = e.Value.ToString();
+}

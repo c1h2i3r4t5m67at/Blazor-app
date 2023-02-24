@@ -1,0 +1,30 @@
+﻿@page "/newResume"
+<PageTitle>Index</PageTitle>
+@using Exl.ResumeBuilder.Web.Data
+@using Exl.ResumeBuilder.Web.Models.Resume
+@using Exl.ResumeBuilder.Web.Services
+@using Microsoft.Extensions.Logging
+@inject ILogger<NewResume> Logger
+@inject ResumeService ResumeService
+
+<div class="container">
+    <ResumeHeaderEditor Resume="@resume" OnValidSubmit="@HandleValidSubmit" />
+    <br>
+</div>
+
+@code {
+    private CreateNewResumeDto resume = new();
+    private EditContext? editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new(resume);
+
+    }
+
+    private async void HandleValidSubmit()
+    {
+        await ResumeService.CreateNewResume(resume);
+    }
+
+}
